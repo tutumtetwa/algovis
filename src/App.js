@@ -1017,190 +1017,223 @@ export default function App() {
     const algoProps = getAlgorithmProps();
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-6 font-sans">
-            <div className="bg-white p-8 rounded-2xl shadow-2xl max-w-7xl mx-auto">
-                <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 mb-6">
-                    {algoProps.name} Visualization ✨
-                </h1>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 p-6 bg-gray-50 rounded-xl shadow-inner">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Algorithm Pattern</label>
-                        <select
-                            value={currentAlgorithm}
-                            onChange={(e) => store.setCurrentAlgorithm(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            disabled={isVisualizing}
-                        >
-                            {Object.entries(algorithms).map(([key, value]) => (
-                                <option key={key} value={key}>
-                                    {value.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Animation Speed</label>
-                        <input
-                            type="range"
-                            min="0"
-                            max="11000"
-                            step="1000"
-                            value={animationSpeed}
-                            onChange={(e) => store.setAnimationSpeed(parseInt(e.target.value))}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                            disabled={!isAutomated || isVisualizing}
-                        />
-                    </div>
-                    <div className="flex flex-col items-center space-y-4">
-                        <div className="flex items-center space-x-4">
-                            <span className="text-sm font-medium text-gray-900">Manual</span>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    checked={isAutomated}
-                                    onChange={(e) => store.setIsAutomated(e.target.checked)}
-                                    className="sr-only peer"
-                                    disabled={isVisualizing}
-                                />
-                                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                            </label>
-                            <span className="text-sm font-medium text-gray-900">Automate</span>
-                        </div>
-                        <div className="flex items-center space-x-4 w-full">
-                            {!isAutomated ? (
-                                <>
-                                    <button
-                                        onClick={handlePrev}
-                                        className="flex-1 bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-700 transition disabled:bg-gray-400"
-                                        disabled={currentStepIndex.current <= 0}
-                                    >
-                                        Previous
-                                    </button>
-                                    <button
-                                        onClick={!isVisualizing ? startVisualization : handleNext}
-                                        className="flex-1 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400"
-                                        disabled={isComplete}
-                                    >
-                                        {!isVisualizing ? 'Start' : 'Next'}
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <button
-                                        onClick={!isVisualizing ? startVisualization : () => store.setIsPaused(!isPaused)}
-                                        className="flex-1 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400"
-                                        disabled={isComplete}
-                                    >
-                                        {isVisualizing && !isPaused ? 'Pause' : isPaused ? 'Resume' : 'Start'}
-                                    </button>
-                                    {isVisualizing && (
-                                        <button
-                                            onClick={stopVisualization}
-                                            className="flex-1 bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-700 transition"
-                                        >
-                                            Stop
-                                        </button>
-                                    )}
-                                </>
-                            )}
-                        </div>
-                    </div>
-                </div>
-                <div className="flex justify-center mb-6">
-                    <button
-                        onClick={toggleModal}
-                        className="bg-purple-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-purple-700 transition"
-                        disabled={isVisualizing}
-                    >
-                        Enter Custom Data
-                    </button>
-                </div>
-                {showModal && <CustomDataModal isOpen={showModal} onSubmit={handleCustomDataSubmit} onClose={toggleModal} algoType={algoProps.type} currentAlgorithm={currentAlgorithm} />}
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-                    <div className="lg:col-span-3 bg-white rounded-xl shadow-md min-h-[400px] flex overflow-auto border-2 border-gray-200 p-4">
-                        {algoProps.type === 'array' && <ArrayVisualizer array={array} highlights={highlights} />}
-                        {algoProps.type === 'board' && <BoardVisualizer board={board} highlights={highlights} />}
-                        {algoProps.type === 'graph' && <GraphVisualizer graph={graph} highlights={highlights} />}
-                        {algoProps.type === 'dp' && <DPVisualizer table={dpTable} highlights={highlights} />}
-                        {algoProps.type === 'linked-list' && <LinkedListVisualizer head={linkedList} highlights={highlights} />}
-                        {algoProps.type === 'tree' &&
-                            (currentAlgorithm === 'heap' ? (
-                                <HeapVisualizer heap={heap} highlights={highlights} />
-                            ) : currentAlgorithm === 'trie' ? (
-                                <TrieVisualizer trie={trie} highlights={highlights} />
-                            ) : (
-                                <BSTVisualizer trie={trie} highlights={highlights} />
-                            ))}
-                        {algoProps.type === 'other' && <BitVisualizer number={bitNumber} explanation={explanationText} highlights={highlights} />}
-                    </div>
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-gray-50 p-6 rounded-xl shadow-md">
-                            <h3 className="text-xl font-bold text-gray-800 mb-3">Step-by-Step Explanation</h3>
-                            <p className="text-gray-700 min-h-[4rem]">{explanationText}</p>
-                            <div className="mt-4">
-                                <span className="text-sm font-medium text-gray-600">Step {stepCount}</span>
-                                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                                    <div
-                                        className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                                        style={{ width: `${isComplete ? 100 : (stepCount / (stepCount + 1)) * 100}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-gray-50 p-6 rounded-xl shadow-md">
-                            <h3 className="text-xl font-bold text-gray-800 mb-3">Complexity</h3>
-                            <div className="grid grid-cols-2 gap-x-4">
-                                <div>
-                                    <span className="font-semibold">Time:</span> {algoProps.complexity.time}
-                                </div>
-                                <div>
-                                    <span className="font-semibold">Space:</span> {algoProps.complexity.space}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="bg-gray-50 p-6 rounded-xl shadow-md">
-                            <h3 className="text-xl font-bold text-gray-800 mb-3">Practice on LeetCode</h3>
-                            <ul className="space-y-2 list-disc list-inside">
-                                {algoProps.problems.map((p) => (
-                                    <li key={p.name}>
-                                        <a
-                                            href={p.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-blue-600 hover:underline hover:text-blue-800 transition"
-                                        >
-                                            {p.name} →
-                                        </a>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div className="mt-8">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-semibold text-gray-800">Code Implementation</h2>
-                        <div className="flex space-x-2 bg-gray-200 p-1 rounded-lg">
-                            {['python', 'java', 'cpp'].map((lang) => (
-                                <button
-                                    key={lang}
-                                    onClick={() => store.setCurrentLanguage(lang)}
-                                    className={`px-4 py-2 text-sm font-semibold rounded-md transition ${
-                                        store.currentLanguage === lang
-                                            ? 'bg-blue-600 text-white shadow-md'
-                                            : 'bg-gray-100 text-gray-700 hover:bg-gray-300'
-                                    }`}
-                                >
-                                    {lang === 'cpp' ? 'C++' : lang.charAt(0).toUpperCase() + lang.slice(1)}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                    <pre className="bg-gray-800 text-gray-200 p-6 rounded-xl overflow-x-auto text-sm shadow-inner">
-                        <code>{algoProps.code[store.currentLanguage] || algoProps.pseudocode}</code>
-                    </pre>
-                </div>
-            </div>
+  <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-6 font-sans text-gray-200">
+    <div className="bg-gray-800 bg-opacity-90 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-7xl mx-auto border border-gray-700">
+      <h1 className="text-5xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-8 drop-shadow-lg">
+        {algoProps.name} Visualization ✨
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 p-6 bg-gray-900 bg-opacity-70 rounded-xl shadow-inner border border-gray-700">
+        <div>
+          <label className="block text-sm font-semibold text-gray-300 mb-2">Algorithm Pattern</label>
+          <select
+            value={currentAlgorithm}
+            onChange={(e) => store.setCurrentAlgorithm(e.target.value)}
+            className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 focus:ring-2 focus:ring-cyan-500 focus:outline-none"
+            disabled={isVisualizing}
+          >
+            {Object.entries(algorithms).map(([key, value]) => (
+              <option key={key} value={key}>
+                {value.name}
+              </option>
+            ))}
+          </select>
         </div>
-    );
+
+        <div>
+          <label className="block text-sm font-semibold text-gray-300 mb-2">Animation Speed</label>
+          <input
+            type="range"
+            min="0"
+            max="11000"
+            step="1000"
+            value={animationSpeed}
+            onChange={(e) => store.setAnimationSpeed(parseInt(e.target.value))}
+            className="w-full h-2 bg-gray-700 rounded-lg cursor-pointer accent-cyan-500"
+            disabled={!isAutomated || isVisualizing}
+          />
+        </div>
+
+        <div className="flex flex-col items-center space-y-4">
+          <div className="flex items-center space-x-4">
+            <span className="text-sm font-medium text-gray-400">Manual</span>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isAutomated}
+                onChange={(e) => store.setIsAutomated(e.target.checked)}
+                className="sr-only peer"
+                disabled={isVisualizing}
+              />
+              <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:bg-cyan-500 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
+            </label>
+            <span className="text-sm font-medium text-gray-400">Automate</span>
+          </div>
+
+          <div className="flex items-center space-x-4 w-full">
+            {!isAutomated ? (
+              <>
+                <button
+                  onClick={handlePrev}
+                  className="flex-1 bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-500 transition disabled:bg-gray-500"
+                  disabled={currentStepIndex.current <= 0}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={!isVisualizing ? startVisualization : handleNext}
+                  className="flex-1 bg-cyan-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-cyan-500 transition disabled:bg-cyan-400"
+                  disabled={isComplete}
+                >
+                  {!isVisualizing ? 'Start' : 'Next'}
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={!isVisualizing ? startVisualization : () => store.setIsPaused(!isPaused)}
+                  className="flex-1 bg-cyan-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-cyan-500 transition disabled:bg-cyan-400"
+                  disabled={isComplete}
+                >
+                  {isVisualizing && !isPaused ? 'Pause' : isPaused ? 'Resume' : 'Start'}
+                </button>
+                {isVisualizing && (
+                  <button
+                    onClick={stopVisualization}
+                    className="flex-1 bg-red-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-red-500 transition"
+                  >
+                    Stop
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-center mb-8">
+        <button
+          onClick={toggleModal}
+          className="bg-purple-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-purple-500 transition shadow-lg"
+          disabled={isVisualizing}
+        >
+          Enter Custom Data
+        </button>
+      </div>
+
+      {showModal && (
+        <CustomDataModal
+          isOpen={showModal}
+          onSubmit={handleCustomDataSubmit}
+          onClose={toggleModal}
+          algoType={algoProps.type}
+          currentAlgorithm={currentAlgorithm}
+        />
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+        <div className="lg:col-span-3 bg-gray-900 border border-gray-700 rounded-xl shadow-lg min-h-[400px] p-4 flex overflow-auto">
+          {algoProps.type === 'array' && <ArrayVisualizer array={array} highlights={highlights} />}
+          {algoProps.type === 'board' && <BoardVisualizer board={board} highlights={highlights} />}
+          {algoProps.type === 'graph' && <GraphVisualizer graph={graph} highlights={highlights} />}
+          {algoProps.type === 'dp' && <DPVisualizer table={dpTable} highlights={highlights} />}
+          {algoProps.type === 'linked-list' && <LinkedListVisualizer head={linkedList} highlights={highlights} />}
+          {algoProps.type === 'tree' &&
+            (currentAlgorithm === 'heap' ? (
+              <HeapVisualizer heap={heap} highlights={highlights} />
+            ) : currentAlgorithm === 'trie' ? (
+              <TrieVisualizer trie={trie} highlights={highlights} />
+            ) : (
+              <BSTVisualizer trie={trie} highlights={highlights} />
+            ))}
+          {algoProps.type === 'other' && <BitVisualizer number={bitNumber} explanation={explanationText} highlights={highlights} />}
+        </div>
+
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-gray-800 p-6 rounded-xl shadow-md border border-gray-700">
+            <h3 className="text-xl font-bold text-white mb-3">Step-by-Step Explanation</h3>
+            <p className="text-gray-300 min-h-[4rem]">{explanationText}</p>
+            <div className="mt-4">
+              <span className="text-sm text-gray-400">Step {stepCount}</span>
+              <div className="w-full bg-gray-700 rounded-full h-2.5 mt-2">
+                <div
+                  className="bg-cyan-500 h-2.5 rounded-full transition-all duration-300"
+                  style={{ width: `${isComplete ? 100 : (stepCount / (stepCount + 1)) * 100}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-xl shadow-md border border-gray-700">
+            <h3 className="text-xl font-bold text-white mb-3">Complexity</h3>
+            <div className="grid grid-cols-2 gap-x-4 text-gray-300">
+              <div>
+                <span className="font-semibold">Time:</span> {algoProps.complexity.time}
+              </div>
+              <div>
+                <span className="font-semibold">Space:</span> {algoProps.complexity.space}
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-xl shadow-md border border-gray-700">
+            <h3 className="text-xl font-bold text-white mb-3">Practice on LeetCode</h3>
+            <ul className="space-y-2 list-disc list-inside text-blue-400">
+              {algoProps.problems.map((p) => (
+                <li key={p.name}>
+                  <a href={p.url} target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-blue-300">
+                    {p.name} →
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-semibold text-white">Code Implementation</h2>
+          <div className="flex space-x-2 bg-gray-700 p-1 rounded-lg">
+            {['python', 'java', 'cpp'].map((lang) => (
+              <button
+                key={lang}
+                onClick={() => store.setCurrentLanguage(lang)}
+                className={`px-4 py-2 text-sm font-semibold rounded-md transition ${
+                  store.currentLanguage === lang
+                    ? 'bg-cyan-600 text-white shadow'
+                    : 'bg-gray-600 text-gray-200 hover:bg-gray-500'
+                }`}
+              >
+                {lang === 'cpp' ? 'C++' : lang.charAt(0).toUpperCase() + lang.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <pre className="bg-gray-900 text-green-300 p-6 rounded-xl overflow-x-auto text-sm shadow-inner border border-gray-700">
+          <code>{algoProps.code[store.currentLanguage] || algoProps.pseudocode}</code>
+        </pre>
+      </div>
+    </div>
+    <footer className="mt-16 text-center text-sm text-gray-500">
+  <div className="border-t border-gray-700 pt-6">
+    © 2025 <span className="font-semibold text-white">AlgoVis</span>. Developed by{' '}
+    <a
+      href="https://tutumtetwa.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-cyan-400 hover:underline"
+    >
+      Tutu
+    </a>
+    .<br />
+    All rights reserved.
+    </div>
+    </footer>
+
+  </div>
+  
+);
+
 }
